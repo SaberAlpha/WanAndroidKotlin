@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
@@ -133,6 +134,20 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
      **/
     //注册ViewModel与View的契约UI回调事件
     private fun registorUIChangeLiveDataCallBack() {
-
+        //加载对话框显示
+        viewModel?.getUC()?.showDialogEvent?.observe(this,
+            Observer { t -> showDialog(t) })
+        //加载对话框消失
+        viewModel?.getUC()?.dismissDialogEvent?.observe(this, Observer {
+            dismissDialog()
+        })
+        //关闭界面
+        viewModel?.getUC()?.finishEvent?.observe(this, Observer {
+            finish()
+        })
+        //关闭上一层
+        viewModel?.getUC()?.onBackPressedEvent?.observe(this, Observer {
+            onBackPressed()
+        })
     }
 }

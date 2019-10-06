@@ -35,7 +35,7 @@ class AppManager private constructor() {
     /**
      * 是否有activity
      */
-    fun isActivity(): Boolean = activityStack?.empty().not()
+    fun isActivity(): Boolean = activityStack.empty().not()
 
     /**
      * 获取当前Activity
