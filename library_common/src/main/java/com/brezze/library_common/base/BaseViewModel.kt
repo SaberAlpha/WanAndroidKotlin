@@ -1,17 +1,14 @@
 package com.brezze.library_common.base
 
+import android.app.Activity
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.brezze.library_common.bus.event.SingleLiveEvent
+import com.brezze.library_common.ex.call
 import com.trello.rxlifecycle2.LifecycleProvider
-import java.util.*
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application), IBaseViewModel {
-
-    private lateinit var uc: UIChangeLiveData<*>
     private lateinit var lifecycle: LifecycleProvider<*>
 
     /**
@@ -25,25 +22,48 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         return lifecycle
     }
 
-    fun getUC(): UIChangeLiveData<*> {
-        if (null == uc) {
-            uc = UIChangeLiveData<Objects>()
-        }
-        return uc
-    }
 
     /**
      * 关闭界面
      */
     fun finish() {
-        uc.finishEvent.call()
+        finishEvent.call()
     }
 
     /**
      * 返回上一层
      */
     fun onBackPressed() {
-        uc.onBackPressedEvent.call()
+        onBackPressedEvent.call()
+    }
+
+    /**
+     * 显示dialog
+     */
+    fun showDialog() {
+        showDialogEvent.value = "显示"
+    }
+
+    /**
+     * 取消dialog
+     */
+    fun dimissDialog() {
+        dismissDialogEvent.call()
+    }
+
+    /**
+     * toast显示
+     */
+    fun toast(title: String) {
+        toastEvent.value = title
+    }
+
+    /**
+     * 页面跳转
+     */
+    inline fun <reified T : Activity> startActivity(vararg params: Pair<String, Any?>) {
+        val map = mapOf(CLASS to T::class.java, BUNDLE to params)
+        startActivityEvent.value = map
     }
 
     override fun onAny(owner: LifecycleOwner, event: Lifecycle.Event) {
@@ -74,55 +94,22 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     override fun removeRxBus() {
     }
 
-    class UIChangeLiveData<T> : SingleLiveEvent<T>() {
+    val showDialogEvent: MutableLiveData<String> by lazy { MutableLiveData<String>() }
 
-        val showDialogEvent: SingleLiveEvent<String> by lazy {
-            createLiveData(
-                showDialogEvent
-            )
-        }
+    val dismissDialogEvent: MutableLiveData<Void> by lazy { MutableLiveData<Void>() }
 
-        val dismissDialogEvent: SingleLiveEvent<Void> by lazy {
-            createLiveData(
-                dismissDialogEvent
-            )
-        }
+    val toastEvent: MutableLiveData<String> by lazy { MutableLiveData<String>() }
 
-        val startActivityEvent: SingleLiveEvent<Map<String, Object>> by lazy {
-            createLiveData(
-                startActivityEvent
-            )
-        }
+    val startActivityEvent: MutableLiveData<Map<String, Any>> by lazy { MutableLiveData<Map<String, Any>>() }
 
-        val startContainerActivityEvent: SingleLiveEvent<Map<String, Object>> by lazy {
-            createLiveData(
-                startContainerActivityEvent
-            )
-        }
+    val finishEvent: MutableLiveData<Void> by lazy { MutableLiveData<Void>() }
 
-        val finishEvent: SingleLiveEvent<Void> by lazy {
-            createLiveData(
-                finishEvent
-            )
-        }
+    val onBackPressedEvent: MutableLiveData<Void> by lazy { MutableLiveData<Void>() }
 
-        val onBackPressedEvent: SingleLiveEvent<Void> by lazy {
-            createLiveData(
-                onBackPressedEvent
-            )
-        }
-
-        private fun <T> createLiveData(liveData: SingleLiveEvent<T>): SingleLiveEvent<T> {
-            var liveData = liveData
-            if (liveData == null) {
-                liveData = SingleLiveEvent<T>()
-            }
-            return liveData
-        }
-
-        override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
-            super.observe(owner, observer)
-        }
+    companion object {
+        val CLASS: String = "CLASS"
+        val CANONICAL_NAME: String = "CANONICAL_NAME"
+        val BUNDLE: String = "BUNDLE"
     }
 }
 

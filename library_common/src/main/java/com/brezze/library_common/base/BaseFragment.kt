@@ -1,32 +1,33 @@
 package com.brezze.library_common.base
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
-import com.brezze.library_common.base.BaseViewModel.Companion.BUNDLE
-import com.brezze.library_common.base.BaseViewModel.Companion.CLASS
 import com.brezze.library_common.utils.MaterialDialogUtils
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
-import org.jetbrains.anko.internals.AnkoInternals.createIntent
-import org.jetbrains.anko.startActivity
+import com.trello.rxlifecycle2.components.support.RxFragment
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.internals.AnkoInternals.createIntent
+
 import java.lang.reflect.ParameterizedType
 
-abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppCompatActivity(),
-    IBaseActivity {
+abstract class BaseFragment<V : ViewDataBinding, VM : BaseViewModel> : RxFragment(), IBaseActivity {
 
     protected lateinit var binding: V
     protected var viewModel: VM? = null
     private var viewModelId: Int? = null
     private val dialog: MaterialDialog by lazy {
         MaterialDialogUtils.showIndeterminateProgressDialog(
-            this,
+            activity,
             "加载中",
             true
         ).show()
@@ -34,18 +35,7 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //页面接受的参数方法
         initParam()
-        //私有的初始化Databinding和ViewModel方法
-        initViewDataBinding(savedInstanceState)
-        //私有的ViewModel与View的契约事件回调逻辑
-        registorUIChangeLiveDataCallBack()
-        //页面数据初始化方法
-        initData()
-        //页面事件监听的方法，一般用于ViewModel层转到View层的事件注册
-        initViewObservable()
-        //注册RxBus
-        viewModel?.registerRxBus()
     }
 
     override fun onDestroy() {
@@ -60,9 +50,19 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
         }
     }
 
-
-    private fun initViewDataBinding(savedInstanceState: Bundle?) {
-        binding = DataBindingUtil.setContentView(this, initContentView(savedInstanceState))
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        inflater?.let {
+            binding = DataBindingUtil.inflate(
+                it,
+                initContentView(it, container, savedInstanceState),
+                container,
+                false
+            )
+        }
         viewModelId = initVariableId()
         viewModel = initViewModel()
         if (viewModel == null) {
@@ -82,21 +82,35 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
         viewModel?.let { lifecycle.addObserver(it) }
         //注入RxLifecycle生命周期
         viewModel?.injectLifecycleProvider(this)
+        return binding.root
     }
 
-    //刷新布局
-    fun refreshLayout() {
-        ((viewModel != null) and (viewModelId != null)).apply {
-            binding.setVariable(viewModelId!!, viewModel)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        //私有的ViewModel与View的契约事件回调逻辑
+        registorUIChangeLiveDataCallBack()
+        //页面数据初始化方法
+        initData()
+        //页面事件监听的方法，一般用于ViewModel层转到View层的事件注册
+        initViewObservable()
+        //注册RxBus
+        viewModel?.registerRxBus()
     }
 
-    fun <T : ViewModel> createViewModel(activity: FragmentActivity, cls: Class<T>): T {
-        return ViewModelProviders.of(activity).get(cls)
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
-
-    abstract fun initContentView(savedInstanceState: Bundle?): Int
+    /**
+     * 初始化根布局
+     *
+     * @return 布局layout的id
+     */
+    abstract fun initContentView(
+        inflater: LayoutInflater?,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): Int
 
     abstract fun initVariableId(): Int?
 
@@ -114,13 +128,17 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
     }
 
     override fun initData() {
-
     }
 
     override fun initViewObservable() {
-
     }
 
+    //刷新布局
+    fun refreshLayout() {
+        ((viewModel != null) and (viewModelId != null)).apply {
+            binding.setVariable(viewModelId!!, viewModel)
+        }
+    }
     /**
      * dialog展示
      */
@@ -156,19 +174,23 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
         //加载对话框消失
         viewModel?.dismissDialogEvent?.observe(this, Observer { dismissDialog() })
         //toast
-        viewModel?.toastEvent?.observe(this, Observer { t -> toast(t) })
+        viewModel?.toastEvent?.observe(this, Observer { t -> activity?.toast(t) })
         //页面跳转
         viewModel?.startActivityEvent?.observe(this, Observer { t ->
 
-            val activity: Class<out Activity> = t.get(CLASS) as Class<out Activity>
+            val activity1: Class<out Activity> = t.get(BaseViewModel.CLASS) as Class<out Activity>
             val params: Array<out Pair<String, Any?>> =
-                t.get(BUNDLE) as Array<out Pair<String, Any?>>
-            startActivity(createIntent(this, activity, params))
+                t.get(BaseViewModel.BUNDLE) as Array<out Pair<String, Any?>>
+//            startActivity(activity.createIntent(activity, activity1, params))
         })
         //关闭界面
-        viewModel?.finishEvent?.observe(this, Observer { finish() })
+        viewModel?.finishEvent?.observe(this, Observer { activity?.finish() })
         //关闭上一层
-        viewModel?.onBackPressedEvent?.observe(this, Observer { onBackPressed() })
+        viewModel?.onBackPressedEvent?.observe(this, Observer { activity?.onBackPressed() })
 
+    }
+
+    fun <T : ViewModel> createViewModel(fragment: Fragment, cls: Class<T>): T {
+        return ViewModelProviders.of(fragment).get(cls)
     }
 }
