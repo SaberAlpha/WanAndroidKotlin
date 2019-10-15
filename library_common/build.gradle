@@ -61,6 +61,7 @@ dependencies {
     api rootProject.ext.dependencies.retrofit
     api rootProject.ext.dependencies["converter-gson"]
     api rootProject.ext.dependencies["adapter-rxjava"]
+    api "com.squareup.okhttp3:logging-interceptor:3.12.0"
     //json解析
     api rootProject.ext.dependencies.gson
     //material-dialogs

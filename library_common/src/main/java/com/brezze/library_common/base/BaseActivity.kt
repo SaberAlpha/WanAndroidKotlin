@@ -24,13 +24,15 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
     protected lateinit var binding: V
     protected var viewModel: VM? = null
     private var viewModelId: Int? = null
-    private val dialog: MaterialDialog by lazy {
-        MaterialDialogUtils.showIndeterminateProgressDialog(
-            this,
-            "加载中",
-            true
-        ).show()
-    }
+
+    private lateinit var dialog: MaterialDialog
+//    private val dialog: MaterialDialog by lazy {
+//        MaterialDialogUtils.showIndeterminateProgressDialog(
+//            this,
+//            "加载中",
+//            true
+//        ).show()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,13 +127,10 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
      * dialog展示
      */
     fun showDialog(title: String) {
-//        if (dialog != null) {
-//            dialog.show()
-//        } else {
-//            val builder = MaterialDialogUtils.showIndeterminateProgressDialog(this, title, true)
-//            dialog = builder.show()
-//        }
-//        (dialog?:MaterialDialogUtils.showIndeterminateProgressDialog(this, title, true).show())?.show()
+        if (this::dialog.isInitialized.not()) {
+            val builder = MaterialDialogUtils.showIndeterminateProgressDialog(this, title, true)
+            dialog = builder.show()
+        }
         dialog.show()
     }
 

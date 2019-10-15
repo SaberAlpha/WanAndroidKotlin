@@ -75,13 +75,17 @@ class RxUtils : Util {
     }
 
     //异常处理
-//    fun <T> exceptionTransformer():ObservableTransformer<T,T> = ObservableTransformer {
-//            it.onErrorReturn(object :Function<Throwable,Observable<T>>{
-//                override fun apply(t: Throwable): Observable<T> {
-//                    return Observable.error(ExceptionHandle.handleException(t))
-//                }
-//            })
-//    }
+    inline fun <T> exceptionTransformer(): ObservableTransformer<BaseResponse<T>, T> =
+        ObservableTransformer {
+            it.map { it -> it.data }
+                .onErrorResumeNext(Function { t ->
+                    Observable.error(
+                        ExceptionHandle.handleException(
+                            t
+                        )
+                    )
+                })
+        }
 
 //    observable.onErrorReturn(
 //    object : Function<Throwable, String> {
@@ -92,15 +96,15 @@ class RxUtils : Util {
 //    });
 
 
-    class  HttpResponseFunc<T>:Function<Throwable,Observable<T>>{
+    class HttpResponseFunc<T> : Function<Throwable, Observable<T>> {
         override fun apply(t: Throwable): Observable<T> {
             return Observable.error(ExceptionHandle.handleException(t))
         }
     }
 
-    class HandleFuc<T>:Function<BaseResponse<T>,T>{
+    class HandleFuc<T> : Function<BaseResponse<T>, T> {
         override fun apply(t: BaseResponse<T>): T {
-            if (!t.isOk()){
+            if (!t.isOk()) {
                 throw RuntimeException("error!")
             }
             return t.data
