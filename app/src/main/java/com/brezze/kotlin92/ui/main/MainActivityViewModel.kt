@@ -4,7 +4,10 @@ import android.app.Application
 import android.util.Log
 import com.brezze.library_common.base.BaseViewModel
 import com.brezze.library_common.http.HttpClient
+import com.brezze.library_common.http.handleResult2
+import com.brezze.library_common.http.io2Main2
 import com.brezze.library_common.utils.RxUtils
+import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,13 +31,12 @@ class MainActivityViewModel(application: Application) : BaseViewModel(applicatio
 //            }
 
         HttpClient.api.banners().compose(getLifecycleProvider().bindToLifecycle())
-            .compose(RxUtils.intance.schedulersTransformer())
+            .io2Main2()
+            .handleResult2()
             .doOnSubscribe { showDialog() }
             .doAfterTerminate { dimissDialog() }
             .subscribe {
-                        val orNull = it.getOrNull()
-                var desc = orNull?.get(0)!!.desc
-                Log.d("banners",desc)
+
             }
     }
 
