@@ -1,6 +1,7 @@
 package com.brezze.library_common.base
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,10 +14,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
+import com.brezze.library_common.ex.createIntent
 import com.brezze.library_common.utils.MaterialDialogUtils
 import com.trello.rxlifecycle2.components.support.RxFragment
 import org.jetbrains.anko.toast
-import org.jetbrains.anko.internals.AnkoInternals.createIntent
 
 import java.lang.reflect.ParameterizedType
 
@@ -181,7 +182,7 @@ abstract class BaseFragment<V : ViewDataBinding, VM : BaseViewModel> : RxFragmen
             val activity1: Class<out Activity> = t.get(BaseViewModel.CLASS) as Class<out Activity>
             val params: Array<out Pair<String, Any?>> =
                 t.get(BaseViewModel.BUNDLE) as Array<out Pair<String, Any?>>
-//            startActivity(activity.createIntent(activity, activity1, params))
+            startActivity(createIntent(context!!, activity1, params))
         })
         //关闭界面
         viewModel?.finishEvent?.observe(this, Observer { activity?.finish() })
@@ -194,3 +195,4 @@ abstract class BaseFragment<V : ViewDataBinding, VM : BaseViewModel> : RxFragmen
         return ViewModelProviders.of(fragment).get(cls)
     }
 }
+
