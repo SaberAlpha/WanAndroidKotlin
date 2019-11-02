@@ -37,7 +37,7 @@ ext {
             //rxbinding
             "rxbinding"                            : "com.jakewharton.rxbinding2:rxbinding:2.1.1",
             //rx 6.0权限请求
-            "rxpermissions"                        : "com.github.tbruyelle:rxpermissions:0.10.2",
+            "rxpermissions"                        : "com.tbruyelle.rxpermissions2:rxpermissions:0.9.3@aar",
             //network
             "okhttp"                               : "com.squareup.okhttp3:okhttp:3.10.0",
             "retrofit"                             : "com.squareup.retrofit2:retrofit:2.4.0",

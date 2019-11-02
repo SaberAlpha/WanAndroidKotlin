@@ -53,9 +53,9 @@ dependencies {
         exclude group: 'com.android.support'
     }
     //rx权限请求
-//    api(rootProject.ext.dependencies.rxpermissions) {
-//        exclude group: 'com.android.support'
-//    }
+    api(rootProject.ext.dependencies.rxpermissions) {
+        exclude group: 'com.android.support'
+    }
     //network
     api rootProject.ext.dependencies.okhttp
     api rootProject.ext.dependencies.retrofit

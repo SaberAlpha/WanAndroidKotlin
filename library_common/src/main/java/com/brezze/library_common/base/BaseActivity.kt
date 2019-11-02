@@ -26,13 +26,6 @@ abstract class BaseActivity<V : ViewDataBinding, VM : BaseViewModel> : RxAppComp
     private var viewModelId: Int? = null
 
     private lateinit var dialog: MaterialDialog
-//    private val dialog: MaterialDialog by lazy {
-//        MaterialDialogUtils.showIndeterminateProgressDialog(
-//            this,
-//            "加载中",
-//            true
-//        ).show()
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

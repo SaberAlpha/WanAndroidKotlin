@@ -1,5 +1,6 @@
 package com.brezze.kotlin92.ui.main
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import com.brezze.library_common.base.BaseViewModel
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class MainActivityViewModel(application: Application) : BaseViewModel(application) {
 
+    @SuppressLint("CheckResult")
     fun onClickView() {
 //        showDialog()
 //        Observable.timer(3, TimeUnit.SECONDS)
@@ -36,7 +38,7 @@ class MainActivityViewModel(application: Application) : BaseViewModel(applicatio
             .doOnSubscribe { showDialog() }
             .doAfterTerminate { dimissDialog() }
             .subscribe {
-
+                    var desc = it.get(0).desc
             }
     }
 
