@@ -23,17 +23,14 @@ open class BaseApiObserver<T>(var onResult:(T?)->Unit,
 
     }
 
-    override fun onNext(t: Result<T>) {
-        when(t.errorCode){
-            0->{
-                onResult(t.data)
-            }
-            else->{
-                toast(t.errorMsg)
-                onServerError(ResponseThrowable(t.errorCode,t.errorMsg))
-            }
+    override fun onNext(t: Result<T>) = when(t.errorCode){
+        0->{
+            onResult(t.data)
         }
-
+        else->{
+            toast(t.errorMsg)
+            onServerError(ResponseThrowable(t.errorCode,t.errorMsg))
+        }
     }
 
 
