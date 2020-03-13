@@ -1,5 +1,6 @@
 package com.brezze.library_common.http
 
+import android.view.View
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function
@@ -11,7 +12,7 @@ inline fun <reified T> Single<Result<T>>.handleResult() = compose { upsteam ->
             0 ->
                 Single.just(it.data ?: T::class.java.newInstance())
             else ->
-                Single.error(HttpException(it.errorMsg))
+                Single.error(Throwable(it.errorMsg))
         }
     }
 }!!
@@ -22,7 +23,7 @@ inline fun <reified T> Observable<Result<T>>.handleResult2() = compose { upstrea
             0 ->
                 Observable.just(it.data ?: T::class.java.newInstance())
             else ->
-                Observable.error(HttpException(it.errorMsg))
+                Observable.error(Throwable(it.errorMsg))
         }
     }
 }

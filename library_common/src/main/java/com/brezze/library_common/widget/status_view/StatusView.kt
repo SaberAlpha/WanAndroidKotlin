@@ -24,7 +24,7 @@ class StatusView @JvmOverloads constructor(context: Context, attrs: AttributeSet
             init(this)
             this.visibility = View.GONE
         }
-        addView(this)
+        addView(view)
         return this
     }
 

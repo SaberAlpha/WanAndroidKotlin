@@ -1,3 +1,3 @@
 package com.brezze.library_common.http
 
-class HttpException(errorMsg: String) : Throwable(message = errorMsg)
+class HttpException(var code:Int,var errorMsg: String) : Throwable(message = errorMsg)

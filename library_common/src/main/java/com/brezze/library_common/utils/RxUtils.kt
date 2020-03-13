@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import androidx.fragment.app.Fragment
 import com.brezze.library_common.http.BaseResponse
-import com.brezze.library_common.http.ExceptionHandle
 import com.trello.rxlifecycle2.LifecycleProvider
 import com.trello.rxlifecycle2.LifecycleTransformer
 import io.reactivex.Observable

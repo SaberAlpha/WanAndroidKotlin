@@ -27,6 +27,11 @@
             android:text="点击"
             android:onClick="@{()->viewModel.onClickView()}"
             />
+        <com.brezze.library_common.widget.status_view.StatusView
+            android:id="@+id/statusView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
     </LinearLayout>
 
 
